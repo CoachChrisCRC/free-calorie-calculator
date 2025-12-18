@@ -30,6 +30,20 @@
             --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
             --toggle-pill-bg: #e5e7eb;
             --modal-overlay: rgba(0, 0, 0, 0.4);
+            
+            /* Goal Colors - Two Shades of Green */
+            --color-cut: #059669; 
+            --bg-cut: #ecfdf5;
+            --color-bulk: #166534; 
+            --bg-bulk: #f0fdf4;
+
+            /* Macro Highlights */
+            --color-carb: #2563eb;
+            --bg-carb: #eff6ff;
+            --color-prot: #7c3aed;
+            --bg-prot: #f5f3ff;
+            --color-fat: #d97706;
+            --bg-fat: #fffbeb;
         }
 
         [data-theme="dark"] {
@@ -50,6 +64,20 @@
             --shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
             --toggle-pill-bg: #1a1a1a;
             --modal-overlay: rgba(0, 0, 0, 0.8);
+
+            /* Goal Colors - Dark Mode */
+            --color-cut: #34d399; 
+            --bg-cut: #064e3b;
+            --color-bulk: #4ade80; 
+            --bg-bulk: #14532d;
+
+            /* Macro Highlights - Dark Mode */
+            --color-carb: #60a5fa;
+            --bg-carb: #1e3a8a;
+            --color-prot: #a78bfa;
+            --bg-prot: #4c1d95;
+            --color-fat: #fbbf24;
+            --bg-fat: #78350f;
         }
 
         body {
@@ -168,6 +196,23 @@
             -webkit-appearance: none;
             margin: 0;
         }
+
+        .cut-box { 
+            background-color: var(--bg-cut); 
+            border: 1px solid var(--color-cut); 
+            color: var(--color-cut); 
+            transition: all 0.3s ease;
+        }
+        .bulk-box { 
+            background-color: var(--bg-bulk); 
+            border: 1px solid var(--color-bulk); 
+            color: var(--color-bulk); 
+            transition: all 0.3s ease;
+        }
+        
+        .macro-box-carb { background-color: var(--bg-carb); border: 1px solid var(--color-carb); color: var(--color-carb); }
+        .macro-box-prot { background-color: var(--bg-prot); border: 1px solid var(--color-prot); color: var(--color-prot); }
+        .macro-box-fat { background-color: var(--bg-fat); border: 1px solid var(--color-fat); color: var(--color-fat); }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center justify-center p-4 py-12" data-theme="light">
@@ -319,31 +364,36 @@
                     <p class="text-[10px] font-black uppercase tracking-widest mt-2" style="color: var(--text-accent)">Calories per day</p>
                     
                     <div class="grid grid-cols-2 gap-4 mt-8 pt-6 border-t" style="border-color: var(--border-color)">
-                        <div class="text-left">
-                            <p class="text-[9px] font-black uppercase tracking-widest opacity-60" style="color: var(--text-muted)">Fat Loss Goal</p>
-                            <p class="text-xl font-bold font-brand" id="cutting-cal" style="color: var(--text-heading)">2200 kcal</p>
+                        <div class="text-left p-4 rounded-2xl cut-box">
+                            <p class="text-[9px] font-black uppercase tracking-widest opacity-80 mb-1">Fat Loss Goal</p>
+                            <p class="text-xl font-bold font-brand" id="cutting-cal">2200 kcal</p>
                         </div>
-                        <div class="text-right">
-                            <p class="text-[9px] font-black uppercase tracking-widest opacity-60" style="color: var(--text-muted)">Muscle Gain Goal</p>
-                            <p class="text-xl font-bold font-brand" id="bulking-cal" style="color: var(--text-heading)">2800 kcal</p>
+                        <div class="text-right p-4 rounded-2xl bulk-box">
+                            <p class="text-[9px] font-black uppercase tracking-widest opacity-80 mb-1">Muscle Gain Goal</p>
+                            <p class="text-xl font-bold font-brand" id="bulking-cal">2800 kcal</p>
                         </div>
                     </div>
                 </div>
 
                 <div class="space-y-4">
-                    <h4 class="text-xs font-black uppercase tracking-widest text-center" style="color: var(--text-muted)">Suggested Split (40C/30P/30F)</h4>
+                    <h4 class="text-xs font-black uppercase tracking-widest text-center" style="color: var(--text-muted)">
+                        Suggested Split
+                    </h4>
                     <div class="grid grid-cols-3 gap-3">
-                        <div class="p-4 rounded-2xl border text-center" style="background-color: var(--bg-toggle); border-color: var(--border-color)">
-                            <p class="text-[9px] font-black uppercase" style="color: var(--text-accent)">Carbs</p>
-                            <p class="text-xl font-brand font-bold mt-1" id="macro-carbs" style="color: var(--text-heading)">250g</p>
+                        <div class="p-4 rounded-2xl text-center macro-box-carb">
+                            <p class="text-[9px] font-black uppercase opacity-80">Carbs</p>
+                            <p class="text-xl font-brand font-bold mt-1" id="macro-carbs">250g</p>
+                            <p class="text-[9px] font-black uppercase opacity-60 mt-1">40%</p>
                         </div>
-                        <div class="p-4 rounded-2xl border text-center" style="background-color: var(--bg-toggle); border-color: var(--border-color)">
-                            <p class="text-[9px] font-black uppercase" style="color: var(--text-accent)">Protein</p>
-                            <p class="text-xl font-brand font-bold mt-1" id="macro-protein" style="color: var(--text-heading)">187g</p>
+                        <div class="p-4 rounded-2xl text-center macro-box-prot">
+                            <p class="text-[9px] font-black uppercase opacity-80">Protein</p>
+                            <p class="text-xl font-brand font-bold mt-1" id="macro-protein">187g</p>
+                            <p class="text-[9px] font-black uppercase opacity-60 mt-1">30%</p>
                         </div>
-                        <div class="p-4 rounded-2xl border text-center" style="background-color: var(--bg-toggle); border-color: var(--border-color)">
-                            <p class="text-[9px] font-black uppercase" style="color: var(--text-accent)">Fat</p>
-                            <p class="text-xl font-brand font-bold mt-1" id="macro-fat" style="color: var(--text-heading)">83g</p>
+                        <div class="p-4 rounded-2xl text-center macro-box-fat">
+                            <p class="text-[9px] font-black uppercase opacity-80">Fat</p>
+                            <p class="text-xl font-brand font-bold mt-1" id="macro-fat">83g</p>
+                            <p class="text-[9px] font-black uppercase opacity-60 mt-1">30%</p>
                         </div>
                     </div>
                 </div>
@@ -513,5 +563,4 @@
     </script>
 </body>
 </html>
-
 
