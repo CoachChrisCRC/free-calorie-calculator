@@ -1,1 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free Calorie Calculator - Coach Chris</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Oswald:wght@400;500;700&display=swap');
+        
+        :root {
+            --bg-page: #f3f4f6;
+            --bg-card: #ffffff;
+            --bg-input: #f9fafb;
+            --bg-result: #f9fafb;
+            --bg-toggle: #f3f4f6;
+            --bg-btn-primary: #000000;
+            --bg-btn-unit: #ffffff;
+            --border-color: #e5e7eb;
+            --text-main: #1f2937;
+            --text-heading: #000000;
+            --text-muted: #9ca3af;
+            --text-accent: #6b7280;
+            --btn-text-primary: #ffffff;
+            --btn-text-unit: #000000;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            --toggle-pill-bg: #e5e7eb;
+            --modal-overlay: rgba(0, 0, 0, 0.4);
+        }
+
+        [data-theme="dark"] {
+            --bg-page: #0a0a0a;
+            --bg-card: #121212;
+            --bg-input: #1a1a1a;
+            --bg-result: #1a1a1a;
+            --bg-toggle: #1a1a1a;
+            --bg-btn-primary: #ffffff;
+            --bg-btn-unit: #ffffff;
+            --border-color: #262626;
+            --text-main: #ffffff;
+            --text-heading: #ffffff;
+            --text-muted: #525252;
+            --text-accent: #a3a3a3;
+            --btn-text-primary: #000000;
+            --btn-text-unit: #000000;
+            --shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+            --toggle-pill-bg: #1a1a1a;
+            --modal-overlay: rgba(0, 0, 0, 0.8);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .font-brand { font-family: 'Oswald', sans-serif; }
+
+        .app-card {
+            background-color: var(--bg-card);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        input, select {
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--text-heading);
+            background-color: var(--bg-card);
+        }
+
+        .result-box {
+            background-color: var(--bg-result);
+            border: 1px solid var(--border-color);
+        }
+
+        .unit-toggle-bg {
+            background-color: var(--bg-toggle);
+            border: 1px solid var(--border-color);
+        }
+
+        .unit-btn-active {
+            background-color: var(--bg-btn-unit);
+            color: var(--btn-text-unit);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .unit-btn-inactive { color: var(--text-muted); }
+
+        .theme-switch-container {
+            position: relative;
+            width: 44px;
+            height: 22px;
+            background-color: var(--toggle-pill-bg);
+            border-radius: 100px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            padding: 2px;
+            border: 1px solid var(--border-color);
+        }
+
+        .theme-switch-circle {
+            position: absolute;
+            left: 2px;
+            width: 16px;
+            height: 16px;
+            background-color: var(--bg-btn-primary);
+            border-radius: 50%;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 10;
+        }
+
+        [data-theme="dark"] .theme-switch-circle { transform: translateX(22px); }
+
+        .theme-switch-icons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 0 3px;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .theme-switch-icons i {
+            width: 9px;
+            height: 9px;
+            color: var(--text-muted);
+            transition: color 0.3s ease;
+        }
+
+        [data-theme="light"] .icon-sun { color: var(--btn-text-primary); }
+        [data-theme="dark"] .icon-moon { color: var(--btn-text-primary); }
+
+        #modal-overlay {
+            background-color: var(--modal-overlay);
+            backdrop-filter: blur(4px);
+            transition: opacity 0.3s ease;
+        }
+        
+        .modal-content {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            transform: scale(0.95);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        #modal-overlay.active .modal-content { transform: scale(1); }
+
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4 py-12" data-theme="light">
+
+    <!-- Activity Level Info Modal -->
+    <div id="modal-overlay" class="fixed inset-0 z-50 flex items-center justify-center p-6 hidden opacity-0">
+        <div class="modal-content w-full max-w-sm rounded-3xl p-8 shadow-2xl relative">
+            <button onclick="toggleModal(false)" class="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <div class="flex flex-col items-center">
+                <div class="p-4 rounded-2xl mb-4" style="background-color: var(--bg-toggle)">
+                    <i data-lucide="info" class="w-8 h-8"></i>
+                </div>
+                <h3 class="font-brand font-bold text-2xl uppercase mb-3 text-center" style="color: var(--text-heading)">Activity Levels</h3>
+                <div class="w-full space-y-4 max-h-[40vh] overflow-y-auto pr-2 text-left">
+                    <div class="space-y-1">
+                        <p class="font-bold text-xs uppercase" style="color: var(--text-heading)">Sedentary</p>
+                        <p class="text-[11px]" style="color: var(--text-accent)">Office job, little to no intentional exercise.</p>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="font-bold text-xs uppercase" style="color: var(--text-heading)">Lightly Active</p>
+                        <p class="text-[11px]" style="color: var(--text-accent)">Light exercise or sports 1–3 days per week.</p>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="font-bold text-xs uppercase" style="color: var(--text-heading)">Moderately Active</p>
+                        <p class="text-[11px]" style="color: var(--text-accent)">Moderate exercise or sports 3–5 days per week.</p>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="font-bold text-xs uppercase" style="color: var(--text-heading)">Highly Active</p>
+                        <p class="text-[11px]" style="color: var(--text-accent)">Hard exercise or sports 6–7 days per week.</p>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="font-bold text-xs uppercase" style="color: var(--text-heading)">Extremely Active</p>
+                        <p class="text-[11px]" style="color: var(--text-accent)">Professional athlete or physical job & training twice daily.</p>
+                    </div>
+                </div>
+                <button onclick="toggleModal(false)" class="w-full mt-8 py-3 font-black uppercase tracking-widest rounded-xl text-xs" style="background-color: var(--bg-btn-primary); color: var(--btn-text-primary)">Got it</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-card w-full max-w-md rounded-3xl overflow-hidden flex flex-col items-center">
+        
+        <header class="w-full px-8 pt-10 pb-6 flex justify-between items-start">
+            <div class="flex flex-col select-none text-left">
+                <h1 class="font-brand font-bold text-4xl leading-none tracking-wide mb-1" style="color: var(--text-heading)">COACH CHRIS</h1>
+                <h2 class="font-brand font-bold text-lg leading-none mb-[2px]" style="color: var(--text-accent)">CIRCULAR ROOTS COACHING</h2>
+                <h3 class="font-brand font-bold text-lg leading-none uppercase" style="color: var(--text-muted)">Train Uncnvntnl</h3>
+            </div>
+            
+            <div class="flex flex-col items-center gap-3">
+                <div class="p-2.5 rounded-xl flex items-center justify-center transition-colors duration-300" style="color: var(--text-heading); background-color: var(--bg-toggle)">
+                    <i data-lucide="utensils" class="w-6 h-6"></i>
+                </div>
+                
+                <div class="flex flex-col items-center gap-1.5">
+                    <span class="text-[9px] font-black uppercase tracking-widest opacity-60" style="color: var(--text-muted)">Theme</span>
+                    <div id="theme-toggle" class="theme-switch-container" aria-label="Toggle Theme">
+                        <div class="theme-switch-circle"></div>
+                        <div class="theme-switch-icons">
+                            <i data-lucide="sun" class="icon-sun"></i>
+                            <i data-lucide="moon" class="icon-moon"></i>
+                        </div>
+                    </div>
+                    <span id="theme-status" class="text-[8px] font-bold uppercase tracking-wider opacity-60" style="color: var(--text-accent)">Light Mode</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="w-full px-8 flex-grow pb-12">
+            <div class="text-center mb-8">
+                <h2 class="text-2xl font-black uppercase tracking-tight" style="color: var(--text-heading)">Free Calorie Calculator</h2>
+                <p class="text-xs mt-2 leading-relaxed" style="color: var(--text-accent)">
+                    Calculate Maintenance Calories (TDEE) and receive a suggested macro split.
+                </p>
+            </div>
+
+            <div class="flex justify-center mb-8">
+                <div id="unit-toggle" class="flex p-1 unit-toggle-bg rounded-xl">
+                    <button id="btn-metric" onclick="setUnitSystem('metric')" class="px-4 py-2 text-xs font-bold rounded-lg transition-all duration-200 unit-btn-active">Metric (kg, cm)</button>
+                    <button id="btn-imperial" onclick="setUnitSystem('imperial')" class="px-4 py-2 text-xs font-bold rounded-lg transition-all duration-200 unit-btn-inactive">Imperial (lb, ft/in)</button>
+                </div>
+                <select id="macro-unit-system" class="hidden"><option value="metric">metric</option><option value="imperial">imperial</option></select>
+            </div>
+
+            <div id="macro-input-form" class="space-y-4">
+                <label class="block">
+                    <span class="text-xs font-black uppercase tracking-wider block mb-1.5 ml-1" style="color: var(--text-muted)">Gender</span>
+                    <select id="macro-gender" class="w-full text-sm font-medium">
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                    </select>
+                </label>
+
+                <div class="grid grid-cols-3 gap-3">
+                    <label class="block">
+                        <span class="text-xs font-black uppercase tracking-wider block mb-1.5 ml-1" style="color: var(--text-muted)">Age</span>
+                        <input id="macro-age" type="number" min="15" max="100" placeholder="Yrs" class="w-full text-sm font-medium">
+                    </label>
+
+                    <div id="macro-height-cm-group" class="block col-span-2">
+                        <span class="text-xs font-black uppercase tracking-wider block mb-1.5 ml-1" style="color: var(--text-muted)">Height (cm)</span>
+                        <input id="macro-height-cm" type="number" min="100" max="250" placeholder="e.g. 175" class="w-full text-sm font-medium">
+                    </div>
+                    <div id="macro-height-ftin-group" class="grid grid-cols-2 gap-2 col-span-2 hidden">
+                        <div>
+                            <span class="text-xs font-black uppercase tracking-wider block mb-1.5 ml-1" style="color: var(--text-muted)">Height (ft)</span>
+                            <input id="macro-height-ft" type="number" min="3" max="8" placeholder="ft" class="w-full text-sm font-medium">
+                        </div>
+                        <div>
+                            <span class="text-xs font-black uppercase tracking-wider block mb-1.5 ml-1" style="color: var(--text-muted)">Height (in)</span>
+                            <input id="macro-height-in" type="number" min="0" max="11" placeholder="in" class="w-full text-sm font-medium">
+                        </div>
+                    </div>
+                </div>
+
+                <label class="block">
+                    <span id="macro-weight-label" class="text-xs font-black uppercase tracking-wider block mb-1.5 ml-1" style="color: var(--text-muted)">Weight (kg)</span>
+                    <input id="macro-weight" type="number" min="30" max="500" placeholder="e.g. 75" class="w-full text-sm font-medium">
+                </label>
+
+                <label class="block">
+                    <div class="flex items-center justify-between mb-1.5 ml-1">
+                        <span class="text-xs font-black uppercase tracking-wider" style="color: var(--text-muted)">Activity Level</span>
+                        <button onclick="toggleModal(true)" class="hover:opacity-80 transition-colors">
+                            <i data-lucide="info" class="w-4 h-4" style="color: var(--text-muted)"></i>
+                        </button>
+                    </div>
+                    <select id="macro-activity" class="w-full text-sm font-medium">
+                        <option value="1.2">Sedentary (Little/no exercise)</option>
+                        <option value="1.375">Light (1-3 days/week)</option>
+                        <option value="1.55">Moderate (3-5 days/week)</option>
+                        <option value="1.725">High (6-7 days/week)</option>
+                        <option value="1.9">Extreme (Athlete level)</option>
+                    </select>
+                </label>
+                
+                <button onclick="calculateMacros()" class="w-full mt-6 py-4 text-base font-black uppercase tracking-widest rounded-xl transition-all shadow-lg active:scale-[0.98]" style="background-color: var(--bg-btn-primary); color: var(--btn-text-primary)">
+                    Calculate
+                </button>
+            </div>
+
+            <!-- Result Display -->
+            <div id="macro-result" class="hidden mt-10 pt-8 space-y-8" style="border-top: 1px solid var(--border-color)">
+                <div class="p-8 rounded-3xl result-box text-center shadow-inner">
+                    <p class="text-[10px] font-black uppercase tracking-widest mb-1" style="color: var(--text-muted)">Daily Maintenance (TDEE)</p>
+                    <p class="text-7xl font-brand font-bold" style="color: var(--text-heading)" id="tdee-display">2500</p>
+                    <p class="text-[10px] font-black uppercase tracking-widest mt-2" style="color: var(--text-accent)">Calories per day</p>
+                    
+                    <div class="grid grid-cols-2 gap-4 mt-8 pt-6 border-t" style="border-color: var(--border-color)">
+                        <div class="text-left">
+                            <p class="text-[9px] font-black uppercase tracking-widest opacity-60" style="color: var(--text-muted)">Fat Loss Goal</p>
+                            <p class="text-xl font-bold font-brand" id="cutting-cal" style="color: var(--text-heading)">2200 kcal</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-[9px] font-black uppercase tracking-widest opacity-60" style="color: var(--text-muted)">Muscle Gain Goal</p>
+                            <p class="text-xl font-bold font-brand" id="bulking-cal" style="color: var(--text-heading)">2800 kcal</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <h4 class="text-xs font-black uppercase tracking-widest text-center" style="color: var(--text-muted)">Suggested Split (40C/30P/30F)</h4>
+                    <div class="grid grid-cols-3 gap-3">
+                        <div class="p-4 rounded-2xl border text-center" style="background-color: var(--bg-toggle); border-color: var(--border-color)">
+                            <p class="text-[9px] font-black uppercase" style="color: var(--text-accent)">Carbs</p>
+                            <p class="text-xl font-brand font-bold mt-1" id="macro-carbs" style="color: var(--text-heading)">250g</p>
+                        </div>
+                        <div class="p-4 rounded-2xl border text-center" style="background-color: var(--bg-toggle); border-color: var(--border-color)">
+                            <p class="text-[9px] font-black uppercase" style="color: var(--text-accent)">Protein</p>
+                            <p class="text-xl font-brand font-bold mt-1" id="macro-protein" style="color: var(--text-heading)">187g</p>
+                        </div>
+                        <div class="p-4 rounded-2xl border text-center" style="background-color: var(--bg-toggle); border-color: var(--border-color)">
+                            <p class="text-[9px] font-black uppercase" style="color: var(--text-accent)">Fat</p>
+                            <p class="text-xl font-brand font-bold mt-1" id="macro-fat" style="color: var(--text-heading)">83g</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="resetMacro()" class="w-full py-4 text-[10px] font-black uppercase tracking-widest border rounded-xl hover:bg-gray-50 dark:hover:bg-zinc-900 transition-colors" style="color: var(--text-muted); border-color: var(--border-color)">
+                    ← START OVER
+                </button>
+            </div>
+            <p id="macro-error" class="text-red-500 text-[10px] uppercase font-bold mt-4 hidden text-center tracking-widest">
+                Please ensure all fields are correct.
+            </p>
+        </main>
+    </div>
+
+    <footer class="w-full max-w-2xl mx-auto text-center py-8 px-6 text-gray-400">
+        <div class="text-[10px] uppercase tracking-widest mb-4 space-y-1">
+            <p>&copy; <span id="current-year"></span> COACH CHRIS | CIRCULAR ROOTS COACHING | TRAIN UNCNVNTNL.</p>
+            <p>All Rights Reserved.</p>
+            <p class="font-bold mt-2" style="color: var(--text-heading)">Fitter. Stronger. Better.</p>
+        </div>
+        <div class="text-[9px] leading-relaxed max-w-md mx-auto italic border-t border-gray-200 dark:border-zinc-800 pt-4 mt-4">
+            <p><strong>Disclaimer:</strong> This calculator provides estimates for informational purposes only. Results are not medical advice. Always consult with a qualified healthcare professional before beginning any new diet or exercise program.</p>
+        </div>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+        
+        const LB_TO_KG = 0.453592;
+        const IN_TO_CM = 2.54;
+        const PROTEIN_CAL_PER_G = 4;
+        const CARB_CAL_PER_G = 4;
+        const FAT_CAL_PER_G = 9;
+        const MACRO_SPLIT = { carbs: 0.40, protein: 0.30, fat: 0.30 }; 
+
+        // Theme Toggle Logic
+        const body = document.body;
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeStatus = document.getElementById('theme-status');
+        
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = body.getAttribute('data-theme');
+            const nextTheme = currentTheme === 'light' ? 'dark' : 'light';
+            body.setAttribute('data-theme', nextTheme);
+            themeStatus.textContent = nextTheme === 'light' ? 'Light Mode' : 'Dark Mode';
+        });
+
+        function toggleModal(show) {
+            const modal = document.getElementById('modal-overlay');
+            if (show) {
+                modal.classList.remove('hidden');
+                setTimeout(() => {
+                    modal.classList.add('active');
+                    modal.style.opacity = '1';
+                }, 10);
+            } else {
+                modal.classList.remove('active');
+                modal.style.opacity = '0';
+                setTimeout(() => modal.classList.add('hidden'), 300);
+            }
+        }
+
+        function setUnitSystem(unit) {
+            const select = document.getElementById('macro-unit-system');
+            select.value = unit;
+            
+            const btnMetric = document.getElementById('btn-metric');
+            const btnImperial = document.getElementById('btn-imperial');
+            
+            if (unit === 'metric') {
+                btnMetric.className = "px-4 py-2 text-xs font-bold rounded-lg transition-all duration-200 unit-btn-active";
+                btnImperial.className = "px-4 py-2 text-xs font-bold rounded-lg transition-all duration-200 unit-btn-inactive";
+            } else {
+                btnMetric.className = "px-4 py-2 text-xs font-bold rounded-lg transition-all duration-200 unit-btn-inactive";
+                btnImperial.className = "px-4 py-2 text-xs font-bold rounded-lg transition-all duration-200 unit-btn-active";
+            }
+            toggleMacroUnits();
+        }
+
+        function toggleMacroUnits() {
+            const unitSystem = document.getElementById('macro-unit-system').value;
+            const isImperial = unitSystem === 'imperial';
+            document.getElementById('macro-weight-label').textContent = isImperial ? 'Weight (lb)' : 'Weight (kg)';
+            const cmGroup = document.getElementById('macro-height-cm-group');
+            const ftInGroup = document.getElementById('macro-height-ftin-group');
+            if (isImperial) {
+                cmGroup.classList.add('hidden');
+                ftInGroup.classList.remove('hidden');
+                document.getElementById('macro-weight').placeholder = 'e.g. 165';
+            } else {
+                cmGroup.classList.remove('hidden');
+                ftInGroup.classList.add('hidden');
+                document.getElementById('macro-weight').placeholder = 'e.g. 75';
+            }
+        }
+
+        function calculateMacros() {
+            const unitSystem = document.getElementById('macro-unit-system').value;
+            const isImperial = unitSystem === 'imperial';
+            const gender = document.getElementById('macro-gender').value;
+            const age = parseInt(document.getElementById('macro-age').value, 10);
+            const weightInput = parseFloat(document.getElementById('macro-weight').value);
+            const activityMultiplier = parseFloat(document.getElementById('macro-activity').value);
+            let heightCm;
+            
+            if (isImperial) {
+                const ft = parseFloat(document.getElementById('macro-height-ft').value) || 0;
+                const inches = parseFloat(document.getElementById('macro-height-in').value) || 0;
+                heightCm = ((ft * 12) + inches) * IN_TO_CM;
+            } else {
+                heightCm = parseFloat(document.getElementById('macro-height-cm').value);
+            }
+            
+            const resultDiv = document.getElementById('macro-result');
+            const formDiv = document.getElementById('macro-input-form');
+            const errorDiv = document.getElementById('macro-error');
+            
+            errorDiv.classList.add('hidden');
+            let weightKg = isImperial ? weightInput * LB_TO_KG : weightInput;
+            
+            if (isNaN(age) || isNaN(heightCm) || isNaN(weightKg) || age < 15 || heightCm < 50 || weightKg < 20) {
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            
+            // Mifflin-St Jeor Equation
+            let bmr = (gender === 'male') ? 
+                (10 * weightKg) + (6.25 * heightCm) - (5 * age) + 5 : 
+                (10 * weightKg) + (6.25 * heightCm) - (5 * age) - 161;
+            
+            const maintenance = Math.round(bmr * activityMultiplier);
+            const cutting = Math.round(maintenance * 0.85); // 15% deficit
+            const bulking = Math.round(maintenance * 1.10); // 10% surplus
+            
+            const carbsGrams = Math.round((maintenance * MACRO_SPLIT.carbs) / CARB_CAL_PER_G);
+            const proteinGrams = Math.round((maintenance * MACRO_SPLIT.protein) / PROTEIN_CAL_PER_G);
+            const fatGrams = Math.round((maintenance * MACRO_SPLIT.fat) / FAT_CAL_PER_G);
+            
+            document.getElementById('tdee-display').textContent = maintenance.toLocaleString();
+            document.getElementById('cutting-cal').textContent = `${cutting.toLocaleString()} kcal`;
+            document.getElementById('bulking-cal').textContent = `${bulking.toLocaleString()} kcal`;
+            document.getElementById('macro-carbs').textContent = `${carbsGrams}g`;
+            document.getElementById('macro-protein').textContent = `${proteinGrams}g`;
+            document.getElementById('macro-fat').textContent = `${fatGrams}g`;
+            
+            formDiv.classList.add('hidden');
+            resultDiv.classList.remove('hidden');
+            resultDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        
+        function resetMacro() {
+            document.getElementById('macro-age').value = '';
+            document.getElementById('macro-height-cm').value = '';
+            document.getElementById('macro-height-ft').value = '';
+            document.getElementById('macro-height-in').value = '';
+            document.getElementById('macro-weight').value = '';
+            document.getElementById('macro-result').classList.add('hidden');
+            document.getElementById('macro-input-form').classList.remove('hidden');
+            document.getElementById('macro-error').classList.add('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        window.onload = () => { 
+            document.getElementById('current-year').textContent = new Date().getFullYear();
+            toggleMacroUnits(); 
+        }
+    </script>
+</body>
+</html>
+
 
