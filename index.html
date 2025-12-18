@@ -31,13 +31,11 @@
             --toggle-pill-bg: #e5e7eb;
             --modal-overlay: rgba(0, 0, 0, 0.4);
             
-            /* Goal Colors - Two Shades of Green */
             --color-cut: #059669; 
             --bg-cut: #ecfdf5;
             --color-bulk: #166534; 
             --bg-bulk: #f0fdf4;
 
-            /* Macro Highlights */
             --color-carb: #2563eb;
             --bg-carb: #eff6ff;
             --color-prot: #7c3aed;
@@ -65,13 +63,11 @@
             --toggle-pill-bg: #1a1a1a;
             --modal-overlay: rgba(0, 0, 0, 0.8);
 
-            /* Goal Colors - Dark Mode */
             --color-cut: #34d399; 
             --bg-cut: #064e3b;
             --color-bulk: #4ade80; 
             --bg-bulk: #14532d;
 
-            /* Macro Highlights - Dark Mode */
             --color-carb: #60a5fa;
             --bg-carb: #1e3a8a;
             --color-prot: #a78bfa;
@@ -176,10 +172,24 @@
         [data-theme="light"] .icon-sun { color: var(--btn-text-primary); }
         [data-theme="dark"] .icon-moon { color: var(--btn-text-primary); }
 
-        #modal-overlay {
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
             background-color: var(--modal-overlay);
             backdrop-filter: blur(4px);
-            transition: opacity 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
         }
         
         .modal-content {
@@ -189,7 +199,7 @@
             transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         
-        #modal-overlay.active .modal-content { transform: scale(1); }
+        .modal-overlay.active .modal-content { transform: scale(1); }
 
         input[type=number]::-webkit-inner-spin-button, 
         input[type=number]::-webkit-outer-spin-button { 
@@ -201,13 +211,11 @@
             background-color: var(--bg-cut); 
             border: 1px solid var(--color-cut); 
             color: var(--color-cut); 
-            transition: all 0.3s ease;
         }
         .bulk-box { 
             background-color: var(--bg-bulk); 
             border: 1px solid var(--color-bulk); 
             color: var(--color-bulk); 
-            transition: all 0.3s ease;
         }
         
         .macro-box-carb { background-color: var(--bg-carb); border: 1px solid var(--color-carb); color: var(--color-carb); }
@@ -218,9 +226,9 @@
 <body class="min-h-screen flex flex-col items-center justify-center p-4 py-12" data-theme="light">
 
     <!-- Activity Level Info Modal -->
-    <div id="modal-overlay" class="fixed inset-0 z-50 flex items-center justify-center p-6 hidden opacity-0">
+    <div id="activity-modal" class="modal-overlay">
         <div class="modal-content w-full max-w-sm rounded-3xl p-8 shadow-2xl relative">
-            <button onclick="toggleModal(false)" class="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors">
+            <button onclick="closeModal('activity-modal')" class="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors">
                 <i data-lucide="x" class="w-5 h-5"></i>
             </button>
             <div class="flex flex-col items-center">
@@ -250,7 +258,46 @@
                         <p class="text-[11px]" style="color: var(--text-accent)">Professional athlete or physical job & training twice daily.</p>
                     </div>
                 </div>
-                <button onclick="toggleModal(false)" class="w-full mt-8 py-3 font-black uppercase tracking-widest rounded-xl text-xs" style="background-color: var(--bg-btn-primary); color: var(--btn-text-primary)">Got it</button>
+                <button onclick="closeModal('activity-modal')" class="w-full mt-8 py-3 font-black uppercase tracking-widest rounded-xl text-xs" style="background-color: var(--bg-btn-primary); color: var(--btn-text-primary)">Got it</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- How To Use Modal -->
+    <div id="usage-modal" class="modal-overlay">
+        <div class="modal-content w-full max-w-sm rounded-3xl p-8 shadow-2xl relative">
+            <button onclick="closeModal('usage-modal')" class="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <div class="flex flex-col items-center">
+                <div class="p-4 rounded-2xl mb-4" style="background-color: var(--bg-toggle)">
+                    <i data-lucide="help-circle" class="w-8 h-8"></i>
+                </div>
+                <h3 class="font-brand font-bold text-2xl uppercase mb-3 text-center" style="color: var(--text-heading)">How To Use</h3>
+                <div class="w-full space-y-5 text-left">
+                    <div class="flex gap-4">
+                        <div class="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center font-black text-[10px]" style="background-color: var(--bg-btn-primary); color: var(--btn-text-primary)">1</div>
+                        <div>
+                            <p class="font-bold text-xs uppercase" style="color: var(--text-heading)">Enter Details</p>
+                            <p class="text-[11px]" style="color: var(--text-accent)">Input your biological factors and your current activity level.</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center font-black text-[10px]" style="background-color: var(--bg-btn-primary); color: var(--btn-text-primary)">2</div>
+                        <div>
+                            <p class="font-bold text-xs uppercase" style="color: var(--text-heading)">Calculate TDEE</p>
+                            <p class="text-[11px]" style="color: var(--text-accent)">Your TDEE is the amount of calories you burn daily. This is your "Maintenance" number.</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center font-black text-[10px]" style="background-color: var(--bg-btn-primary); color: var(--btn-text-primary)">3</div>
+                        <div>
+                            <p class="font-bold text-xs uppercase" style="color: var(--text-heading)">Apply Targets</p>
+                            <p class="text-[11px]" style="color: var(--text-accent)">To lose fat, aim for the "Fat Loss" target. To gain muscle, aim for "Muscle Gain". Use the macro splits to stay on track.</p>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="closeModal('usage-modal')" class="w-full mt-8 py-3 font-black uppercase tracking-widest rounded-xl text-xs" style="background-color: var(--bg-btn-primary); color: var(--btn-text-primary)">Got it</button>
             </div>
         </div>
     </div>
@@ -264,11 +311,8 @@
                 <h3 class="font-brand font-bold text-lg leading-none uppercase" style="color: var(--text-muted)">Train Uncnvntnl</h3>
             </div>
             
-            <div class="flex flex-col items-center gap-3">
-                <div class="p-2.5 rounded-xl flex items-center justify-center transition-colors duration-300" style="color: var(--text-heading); background-color: var(--bg-toggle)">
-                    <i data-lucide="utensils" class="w-6 h-6"></i>
-                </div>
-                
+            <div class="flex flex-col items-center gap-4">
+                <!-- Theme Toggle Section -->
                 <div class="flex flex-col items-center gap-1.5">
                     <span class="text-[9px] font-black uppercase tracking-widest opacity-60" style="color: var(--text-muted)">Theme</span>
                     <div id="theme-toggle" class="theme-switch-container" aria-label="Toggle Theme">
@@ -280,12 +324,24 @@
                     </div>
                     <span id="theme-status" class="text-[8px] font-bold uppercase tracking-wider opacity-60" style="color: var(--text-accent)">Light Mode</span>
                 </div>
+
+                <!-- How to Use Section -->
+                <div class="flex flex-col items-center gap-1.5">
+                    <button onclick="openModal('usage-modal')" class="p-2.5 rounded-xl flex items-center justify-center transition-colors duration-300" style="color: var(--text-heading); background-color: var(--bg-toggle)" title="How to use">
+                        <i data-lucide="help-circle" class="w-5 h-5"></i>
+                    </button>
+                    <span class="text-[8px] font-bold uppercase tracking-wider opacity-60" style="color: var(--text-accent)">How to use</span>
+                </div>
             </div>
         </header>
 
         <main class="w-full px-8 flex-grow pb-12">
             <div class="text-center mb-8">
-                <h2 class="text-2xl font-black uppercase tracking-tight" style="color: var(--text-heading)">Free Calorie Calculator</h2>
+                <div class="flex items-center justify-center gap-3 mb-1">
+                    <i data-lucide="utensils" class="w-5 h-5 opacity-40" style="color: var(--text-accent)"></i>
+                    <h2 class="text-2xl font-black uppercase tracking-tight" style="color: var(--text-heading)">Free Calorie Calculator</h2>
+                    <i data-lucide="utensils" class="w-5 h-5 opacity-40" style="color: var(--text-accent)"></i>
+                </div>
                 <p class="text-xs mt-2 leading-relaxed" style="color: var(--text-accent)">
                     Calculate Maintenance Calories (TDEE) and receive a suggested macro split.
                 </p>
@@ -338,7 +394,7 @@
                 <label class="block">
                     <div class="flex items-center justify-between mb-1.5 ml-1">
                         <span class="text-xs font-black uppercase tracking-wider" style="color: var(--text-muted)">Activity Level</span>
-                        <button onclick="toggleModal(true)" class="hover:opacity-80 transition-colors">
+                        <button onclick="openModal('activity-modal')" class="hover:opacity-80 transition-colors">
                             <i data-lucide="info" class="w-4 h-4" style="color: var(--text-muted)"></i>
                         </button>
                     </div>
@@ -409,12 +465,10 @@
     </div>
 
     <footer class="w-full max-w-2xl mx-auto text-center py-8 px-6 text-gray-400">
-        <!-- Disclaimer first -->
         <div class="text-[9px] leading-relaxed max-w-md mx-auto italic border-b border-gray-200 dark:border-zinc-800 pb-4 mb-4">
             <p><strong>Disclaimer:</strong> This calculator provides estimates for informational purposes only. Results are not medical advice. Always consult with a qualified healthcare professional before beginning any new diet or exercise program.</p>
         </div>
         
-        <!-- Copyright Notice second -->
         <div class="text-[10px] uppercase tracking-widest space-y-1">
             <p>&copy; <span id="current-year"></span> COACH CHRIS | CIRCULAR ROOTS COACHING | TRAIN UNCNVNTNL.</p>
             <p>All Rights Reserved.</p>
@@ -432,7 +486,6 @@
         const FAT_CAL_PER_G = 9;
         const MACRO_SPLIT = { carbs: 0.40, protein: 0.30, fat: 0.30 }; 
 
-        // Theme Toggle Logic
         const body = document.body;
         const themeToggle = document.getElementById('theme-toggle');
         const themeStatus = document.getElementById('theme-status');
@@ -444,18 +497,18 @@
             themeStatus.textContent = nextTheme === 'light' ? 'Light Mode' : 'Dark Mode';
         });
 
-        function toggleModal(show) {
-            const modal = document.getElementById('modal-overlay');
-            if (show) {
-                modal.classList.remove('hidden');
-                setTimeout(() => {
-                    modal.classList.add('active');
-                    modal.style.opacity = '1';
-                }, 10);
-            } else {
-                modal.classList.remove('active');
-                modal.style.opacity = '0';
-                setTimeout(() => modal.classList.add('hidden'), 300);
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        // Close modal when clicking background
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal-overlay')) {
+                event.target.classList.remove('active');
             }
         }
 
@@ -522,14 +575,13 @@
                 return;
             }
             
-            // Mifflin-St Jeor Equation
             let bmr = (gender === 'male') ? 
                 (10 * weightKg) + (6.25 * heightCm) - (5 * age) + 5 : 
                 (10 * weightKg) + (6.25 * heightCm) - (5 * age) - 161;
             
             const maintenance = Math.round(bmr * activityMultiplier);
-            const cutting = Math.round(maintenance * 0.85); // 15% deficit
-            const bulking = Math.round(maintenance * 1.10); // 10% surplus
+            const cutting = Math.round(maintenance * 0.85); 
+            const bulking = Math.round(maintenance * 1.10); 
             
             const carbsGrams = Math.round((maintenance * MACRO_SPLIT.carbs) / CARB_CAL_PER_G);
             const proteinGrams = Math.round((maintenance * MACRO_SPLIT.protein) / PROTEIN_CAL_PER_G);
