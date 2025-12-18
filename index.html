@@ -222,12 +222,36 @@
         .macro-box-prot { background-color: var(--bg-prot); border: 1px solid var(--color-prot); color: var(--color-prot); }
         .macro-box-fat { background-color: var(--bg-fat); border: 1px solid var(--color-fat); color: var(--color-fat); }
 
-        /* Animation for the title icons */
         .title-icon {
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
         }
         .title-icon:hover {
             transform: scale(1.1) rotate(5deg);
+        }
+
+        /* Loading Animation Styles */
+        .progress-bar-inner {
+            width: 0%;
+            transition: width 3s linear;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .loading-pulse {
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.7; }
+            50% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.7; }
         }
     </style>
 </head>
@@ -320,7 +344,6 @@
             </div>
             
             <div class="flex flex-col items-center gap-4">
-                <!-- Theme Toggle Section -->
                 <div class="flex flex-col items-center gap-1.5">
                     <span class="text-[9px] font-black uppercase tracking-widest opacity-60" style="color: var(--text-muted)">Theme</span>
                     <div id="theme-toggle" class="theme-switch-container" aria-label="Toggle Theme">
@@ -333,7 +356,6 @@
                     <span id="theme-status" class="text-[8px] font-bold uppercase tracking-wider opacity-60" style="color: var(--text-accent)">Light Mode</span>
                 </div>
 
-                <!-- How to Use Section -->
                 <div class="flex flex-col items-center gap-1.5">
                     <button onclick="openModal('usage-modal')" class="p-2.5 rounded-xl flex items-center justify-center transition-colors duration-300" style="color: var(--text-heading); background-color: var(--bg-toggle)" title="How to use">
                         <i data-lucide="help-circle" class="w-5 h-5"></i>
@@ -343,85 +365,102 @@
             </div>
         </header>
 
-        <main class="w-full px-8 flex-grow pb-12">
-            <div class="text-center mb-8">
-                <div class="flex items-center justify-center gap-3 mb-2">
-                    <i data-lucide="utensils" class="title-icon w-10 h-10 opacity-70 flex-shrink-0" style="color: var(--text-heading)"></i>
-                    <h2 class="text-2xl font-black uppercase tracking-tight leading-tight" style="color: var(--text-heading)">Free Calorie<br>Calculator</h2>
-                    <i data-lucide="utensils" class="title-icon w-10 h-10 opacity-70 flex-shrink-0" style="color: var(--text-heading)"></i>
+        <main class="w-full px-8 flex-grow pb-12 relative">
+            
+            <!-- Input Form Section -->
+            <div id="input-section">
+                <div class="text-center mb-8">
+                    <div class="flex items-center justify-center gap-3 mb-2">
+                        <i data-lucide="utensils" class="title-icon w-10 h-10 opacity-70 flex-shrink-0" style="color: var(--text-heading)"></i>
+                        <h2 class="text-2xl font-black uppercase tracking-tight leading-tight" style="color: var(--text-heading)">Free Calorie<br>Calculator</h2>
+                        <i data-lucide="utensils" class="title-icon w-10 h-10 opacity-70 flex-shrink-0" style="color: var(--text-heading)"></i>
+                    </div>
+                    <p class="text-xs mt-2 leading-relaxed" style="color: var(--text-accent)">
+                        Calculate Maintenance Calories (TDEE) and receive a suggested macro split.
+                    </p>
                 </div>
-                <p class="text-xs mt-2 leading-relaxed" style="color: var(--text-accent)">
-                    Calculate Maintenance Calories (TDEE) and receive a suggested macro split.
-                </p>
-            </div>
 
-            <div class="flex justify-center mb-8">
-                <div id="unit-toggle" class="flex p-1 unit-toggle-bg rounded-xl">
-                    <button id="btn-metric" onclick="setUnitSystem('metric')" class="px-4 py-2 text-xs font-bold rounded-lg transition-all duration-200 unit-btn-active">Metric (kg, cm)</button>
-                    <button id="btn-imperial" onclick="setUnitSystem('imperial')" class="px-4 py-2 text-xs font-bold rounded-lg transition-all duration-200 unit-btn-inactive">Imperial (lb, ft/in)</button>
+                <div class="flex justify-center mb-8">
+                    <div id="unit-toggle" class="flex p-1 unit-toggle-bg rounded-xl">
+                        <button id="btn-metric" onclick="setUnitSystem('metric')" class="px-4 py-2 text-xs font-bold rounded-lg transition-all duration-200 unit-btn-active">Metric (kg, cm)</button>
+                        <button id="btn-imperial" onclick="setUnitSystem('imperial')" class="px-4 py-2 text-xs font-bold rounded-lg transition-all duration-200 unit-btn-inactive">Imperial (lb, ft/in)</button>
+                    </div>
+                    <select id="macro-unit-system" class="hidden"><option value="metric">metric</option><option value="imperial">imperial</option></select>
                 </div>
-                <select id="macro-unit-system" class="hidden"><option value="metric">metric</option><option value="imperial">imperial</option></select>
-            </div>
 
-            <div id="macro-input-form" class="space-y-4">
-                <label class="block">
-                    <span class="text-xs font-black uppercase tracking-wider block mb-1.5 ml-1" style="color: var(--text-muted)">Gender</span>
-                    <select id="macro-gender" class="w-full text-sm font-medium">
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
-                    </select>
-                </label>
-
-                <div class="grid grid-cols-3 gap-3">
+                <div id="macro-input-form" class="space-y-4">
                     <label class="block">
-                        <span class="text-xs font-black uppercase tracking-wider block mb-1.5 ml-1" style="color: var(--text-muted)">Age</span>
-                        <input id="macro-age" type="number" min="15" max="100" placeholder="Yrs" class="w-full text-sm font-medium">
+                        <span class="text-xs font-black uppercase tracking-wider block mb-1.5 ml-1" style="color: var(--text-muted)">Gender</span>
+                        <select id="macro-gender" class="w-full text-sm font-medium">
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                        </select>
                     </label>
 
-                    <div id="macro-height-cm-group" class="block col-span-2">
-                        <span class="text-xs font-black uppercase tracking-wider block mb-1.5 ml-1" style="color: var(--text-muted)">Height (cm)</span>
-                        <input id="macro-height-cm" type="number" min="100" max="250" placeholder="e.g. 175" class="w-full text-sm font-medium">
-                    </div>
-                    <div id="macro-height-ftin-group" class="grid grid-cols-2 gap-2 col-span-2 hidden">
-                        <div>
-                            <span class="text-xs font-black uppercase tracking-wider block mb-1.5 ml-1" style="color: var(--text-muted)">Height (ft)</span>
-                            <input id="macro-height-ft" type="number" min="3" max="8" placeholder="ft" class="w-full text-sm font-medium">
+                    <div class="grid grid-cols-3 gap-3">
+                        <label class="block">
+                            <span class="text-xs font-black uppercase tracking-wider block mb-1.5 ml-1" style="color: var(--text-muted)">Age</span>
+                            <input id="macro-age" type="number" min="15" max="100" placeholder="Yrs" class="w-full text-sm font-medium">
+                        </label>
+
+                        <div id="macro-height-cm-group" class="block col-span-2">
+                            <span class="text-xs font-black uppercase tracking-wider block mb-1.5 ml-1" style="color: var(--text-muted)">Height (cm)</span>
+                            <input id="macro-height-cm" type="number" min="100" max="250" placeholder="e.g. 175" class="w-full text-sm font-medium">
                         </div>
-                        <div>
-                            <span class="text-xs font-black uppercase tracking-wider block mb-1.5 ml-1" style="color: var(--text-muted)">Height (in)</span>
-                            <input id="macro-height-in" type="number" min="0" max="11" placeholder="in" class="w-full text-sm font-medium">
+                        <div id="macro-height-ftin-group" class="grid grid-cols-2 gap-2 col-span-2 hidden">
+                            <div>
+                                <span class="text-xs font-black uppercase tracking-wider block mb-1.5 ml-1" style="color: var(--text-muted)">Height (ft)</span>
+                                <input id="macro-height-ft" type="number" min="3" max="8" placeholder="ft" class="w-full text-sm font-medium">
+                            </div>
+                            <div>
+                                <span class="text-xs font-black uppercase tracking-wider block mb-1.5 ml-1" style="color: var(--text-muted)">Height (in)</span>
+                                <input id="macro-height-in" type="number" min="0" max="11" placeholder="in" class="w-full text-sm font-medium">
+                            </div>
                         </div>
                     </div>
+
+                    <label class="block">
+                        <span id="macro-weight-label" class="text-xs font-black uppercase tracking-wider block mb-1.5 ml-1" style="color: var(--text-muted)">Weight (kg)</span>
+                        <input id="macro-weight" type="number" min="30" max="500" placeholder="e.g. 75" class="w-full text-sm font-medium">
+                    </label>
+
+                    <label class="block">
+                        <div class="flex items-center justify-between mb-1.5 ml-1">
+                            <span class="text-xs font-black uppercase tracking-wider" style="color: var(--text-muted)">Activity Level</span>
+                            <button onclick="openModal('activity-modal')" class="hover:opacity-80 transition-colors">
+                                <i data-lucide="info" class="w-4 h-4" style="color: var(--text-muted)"></i>
+                            </button>
+                        </div>
+                        <select id="macro-activity" class="w-full text-sm font-medium">
+                            <option value="1.2">Sedentary (Little/no exercise)</option>
+                            <option value="1.375">Light (1-3 days/week)</option>
+                            <option value="1.55">Moderate (3-5 days/week)</option>
+                            <option value="1.725">High (6-7 days/week)</option>
+                            <option value="1.9">Extreme (Athlete level)</option>
+                        </select>
+                    </label>
+                    
+                    <button onclick="calculateMacros()" class="w-full mt-6 py-4 text-base font-black uppercase tracking-widest rounded-xl transition-all shadow-lg active:scale-[0.98]" style="background-color: var(--bg-btn-primary); color: var(--btn-text-primary)">
+                        Calculate
+                    </button>
                 </div>
-
-                <label class="block">
-                    <span id="macro-weight-label" class="text-xs font-black uppercase tracking-wider block mb-1.5 ml-1" style="color: var(--text-muted)">Weight (kg)</span>
-                    <input id="macro-weight" type="number" min="30" max="500" placeholder="e.g. 75" class="w-full text-sm font-medium">
-                </label>
-
-                <label class="block">
-                    <div class="flex items-center justify-between mb-1.5 ml-1">
-                        <span class="text-xs font-black uppercase tracking-wider" style="color: var(--text-muted)">Activity Level</span>
-                        <button onclick="openModal('activity-modal')" class="hover:opacity-80 transition-colors">
-                            <i data-lucide="info" class="w-4 h-4" style="color: var(--text-muted)"></i>
-                        </button>
-                    </div>
-                    <select id="macro-activity" class="w-full text-sm font-medium">
-                        <option value="1.2">Sedentary (Little/no exercise)</option>
-                        <option value="1.375">Light (1-3 days/week)</option>
-                        <option value="1.55">Moderate (3-5 days/week)</option>
-                        <option value="1.725">High (6-7 days/week)</option>
-                        <option value="1.9">Extreme (Athlete level)</option>
-                    </select>
-                </label>
-                
-                <button onclick="calculateMacros()" class="w-full mt-6 py-4 text-base font-black uppercase tracking-widest rounded-xl transition-all shadow-lg active:scale-[0.98]" style="background-color: var(--bg-btn-primary); color: var(--btn-text-primary)">
-                    Calculate
-                </button>
             </div>
 
-            <!-- Result Display -->
-            <div id="macro-result" class="hidden mt-10 pt-8 space-y-8" style="border-top: 1px solid var(--border-color)">
+            <!-- Loading Section -->
+            <div id="loading-section" class="hidden flex flex-col items-center justify-center py-20 fade-in">
+                <div class="mb-8 loading-pulse">
+                    <i data-lucide="flame" class="w-16 h-16" style="color: var(--text-heading)"></i>
+                </div>
+                <h3 class="font-brand font-bold text-2xl uppercase tracking-widest mb-2" style="color: var(--text-heading)">Calculating</h3>
+                <p id="loading-text" class="text-[10px] font-black uppercase tracking-[0.2em] mb-8" style="color: var(--text-muted)">Crunching the numbers...</p>
+                
+                <div class="w-full max-w-xs h-1.5 rounded-full overflow-hidden" style="background-color: var(--bg-toggle)">
+                    <div id="progress-bar" class="progress-bar-inner h-full rounded-full" style="background-color: var(--text-heading)"></div>
+                </div>
+            </div>
+
+            <!-- Result Display Section -->
+            <div id="macro-result" class="hidden space-y-8 fade-in">
                 <div class="p-8 rounded-3xl result-box text-center shadow-inner">
                     <p class="text-[10px] font-black uppercase tracking-widest mb-1" style="color: var(--text-muted)">Daily Maintenance (TDEE)</p>
                     <p class="text-7xl font-brand font-bold" style="color: var(--text-heading)" id="tdee-display">2500</p>
@@ -466,6 +505,7 @@
                     ← START OVER
                 </button>
             </div>
+            
             <p id="macro-error" class="text-red-500 text-[10px] uppercase font-bold mt-4 hidden text-center tracking-widest">
                 Please ensure all fields are correct.
             </p>
@@ -570,9 +610,12 @@
                 heightCm = parseFloat(document.getElementById('macro-height-cm').value);
             }
             
+            const inputSection = document.getElementById('input-section');
+            const loadingSection = document.getElementById('loading-section');
             const resultDiv = document.getElementById('macro-result');
-            const formDiv = document.getElementById('macro-input-form');
             const errorDiv = document.getElementById('macro-error');
+            const progressBar = document.getElementById('progress-bar');
+            const loadingText = document.getElementById('loading-text');
             
             errorDiv.classList.add('hidden');
             let weightKg = isImperial ? weightInput * LB_TO_KG : weightInput;
@@ -581,7 +624,8 @@
                 errorDiv.classList.remove('hidden');
                 return;
             }
-            
+
+            // Calculation Logic
             let bmr = (gender === 'male') ? 
                 (10 * weightKg) + (6.25 * heightCm) - (5 * age) + 5 : 
                 (10 * weightKg) + (6.25 * heightCm) - (5 * age) - 161;
@@ -593,17 +637,48 @@
             const carbsGrams = Math.round((maintenance * MACRO_SPLIT.carbs) / CARB_CAL_PER_G);
             const proteinGrams = Math.round((maintenance * MACRO_SPLIT.protein) / PROTEIN_CAL_PER_G);
             const fatGrams = Math.round((maintenance * MACRO_SPLIT.fat) / FAT_CAL_PER_G);
-            
+
+            // Populate Result
             document.getElementById('tdee-display').textContent = maintenance.toLocaleString();
             document.getElementById('cutting-cal').textContent = `${cutting.toLocaleString()} kcal`;
             document.getElementById('bulking-cal').textContent = `${bulking.toLocaleString()} kcal`;
             document.getElementById('macro-carbs').textContent = `${carbsGrams}g`;
             document.getElementById('macro-protein').textContent = `${proteinGrams}g`;
             document.getElementById('macro-fat').textContent = `${fatGrams}g`;
+
+            // Loading Animation Sequence
+            inputSection.classList.add('hidden');
+            loadingSection.classList.remove('hidden');
             
-            formDiv.classList.add('hidden');
-            resultDiv.classList.remove('hidden');
-            resultDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            // Force reflow and start progress bar
+            void progressBar.offsetWidth;
+            progressBar.style.width = '100%';
+
+            // Rotate loading messages
+            const messages = [
+                "Analyzing activity levels...",
+                "Optimizing macro split...",
+                "Building your blueprint...",
+                "Finalizing results..."
+            ];
+            
+            let msgIndex = 0;
+            const msgInterval = setInterval(() => {
+                msgIndex++;
+                if (msgIndex < messages.length) {
+                    loadingText.textContent = messages[msgIndex];
+                }
+            }, 750);
+
+            // Finish after 3 seconds
+            setTimeout(() => {
+                clearInterval(msgInterval);
+                loadingSection.classList.add('hidden');
+                resultDiv.classList.remove('hidden');
+                // Reset progress bar for next time
+                progressBar.style.width = '0%';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 3000);
         }
         
         function resetMacro() {
@@ -613,8 +688,9 @@
             document.getElementById('macro-height-in').value = '';
             document.getElementById('macro-weight').value = '';
             document.getElementById('macro-result').classList.add('hidden');
-            document.getElementById('macro-input-form').classList.remove('hidden');
+            document.getElementById('input-section').classList.remove('hidden');
             document.getElementById('macro-error').classList.add('hidden');
+            document.getElementById('loading-text').textContent = "Crunching the numbers...";
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
