@@ -236,11 +236,11 @@
         }
         
         .fade-in {
-            animation: fadeIn 0.5s ease forwards;
+            animation: fadeIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
@@ -252,6 +252,14 @@
             0% { transform: scale(1); opacity: 0.7; }
             50% { transform: scale(1.05); opacity: 1; }
             100% { transform: scale(1); opacity: 0.7; }
+        }
+
+        .about-section {
+            background-color: var(--bg-toggle);
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            border: 1px dashed var(--border-color);
         }
     </style>
 </head>
@@ -501,6 +509,36 @@
                     </div>
                 </div>
 
+                <!-- About This Result Section -->
+                <div class="about-section text-left space-y-4">
+                    <h5 class="text-xs font-black uppercase tracking-widest flex items-center gap-2" style="color: var(--text-heading)">
+                        <i data-lucide="book-open" class="w-4 h-4"></i>
+                        About Your Results
+                    </h5>
+                    
+                    <div class="space-y-3">
+                        <div class="space-y-1">
+                            <p class="text-[10px] font-black uppercase" style="color: var(--text-heading)">Maintenance (TDEE)</p>
+                            <p class="text-[10px] leading-relaxed" style="color: var(--text-accent)">
+                                This is your Total Daily Energy Expenditure. Eating this amount keeps your weight stable. Use this as your baseline.
+                            </p>
+                        </div>
+                        <div class="space-y-1">
+                            <p class="text-[10px] font-black uppercase" style="color: var(--text-heading)">Goals & Targets</p>
+                            <p class="text-[10px] leading-relaxed" style="color: var(--text-accent)">
+                                <strong>Fat Loss:</strong> A ~15% deficit designed to burn fat while preserving muscle. <br>
+                                <strong>Muscle Gain:</strong> A ~10% surplus to provide the energy needed for muscle synthesis.
+                            </p>
+                        </div>
+                        <div class="space-y-1">
+                            <p class="text-[10px] font-black uppercase" style="color: var(--text-heading)">Top Tip from Coach Chris</p>
+                            <p class="text-[10px] leading-relaxed italic" style="color: var(--text-accent)">
+                                "Calculators are starting points, not laws. Track your weight for 2 weeks. If it doesn't move in the direction you want, adjust your calories by 100-200 and re-evaluate. Consistency beats perfection."
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
                 <button onclick="resetMacro()" class="w-full py-4 text-[10px] font-black uppercase tracking-widest border rounded-xl hover:bg-gray-50 dark:hover:bg-zinc-900 transition-colors" style="color: var(--text-muted); border-color: var(--border-color)">
                     ← START OVER
                 </button>
@@ -625,7 +663,7 @@
                 return;
             }
 
-            // Calculation Logic
+            // Calculation Logic (Mifflin-St Jeor Equation)
             let bmr = (gender === 'male') ? 
                 (10 * weightKg) + (6.25 * heightCm) - (5 * age) + 5 : 
                 (10 * weightKg) + (6.25 * heightCm) - (5 * age) - 161;
@@ -678,6 +716,7 @@
                 // Reset progress bar for next time
                 progressBar.style.width = '0%';
                 window.scrollTo({ top: 0, behavior: 'smooth' });
+                lucide.createIcons(); // Re-init icons for result section
             }, 3000);
         }
         
